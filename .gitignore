@@ -1,3 +1,43 @@
+
+# Created by https://www.toptal.com/developers/gitignore/api/cmake,c++
+# Edit at https://www.toptal.com/developers/gitignore?templates=cmake,c++
+
+### C++ ###
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+### CMake ###
+CMakeLists.txt.user
 CMakeCache.txt
 CMakeFiles
 CMakeScripts
@@ -7,3 +47,19 @@ cmake_install.cmake
 install_manifest.txt
 compile_commands.json
 CTestTestfile.cmake
+_deps
+
+### CMake Patch ###
+# External projects
+*-prefix/
+
+# End of https://www.toptal.com/developers/gitignore/api/cmake,c++
+.vscode/settings.json
+build/.cmake/api/v1/query/client-integration-vscode/cache-v2
+build/.cmake/api/v1/query/client-integration-vscode/cmakeFiles-v1
+build/.cmake/api/v1/query/client-integration-vscode/codemodel-v2
+build/.cmake/api/v1/reply/cache-v2-7647100370d439470de0.json
+build/.cmake/api/v1/reply/cmakeFiles-v1-935882da097f2249313c.json
+build/.cmake/api/v1/reply/codemodel-v2-26e145e702c82b92b6af.json
+build/.cmake/api/v1/reply/index-2021-10-23T19-41-11-0501.json
+build/.cmake/api/v1/reply/target-traffic_simulation-Debug-35c11cbb2095addfe0f1.json
