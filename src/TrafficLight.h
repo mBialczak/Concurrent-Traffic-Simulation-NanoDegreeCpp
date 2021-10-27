@@ -5,6 +5,7 @@
 #include <condition_variable>
 #include <deque>
 #include <mutex>
+#include <random>
 
 // forward declarations to avoid include cycle
 class Vehicle;
@@ -31,6 +32,7 @@ class TrafficLight : public TrafficObject {
   public:
   // constructor
   TrafficLight();
+  // destructor
 
   // holds execution of when called until green light is set
   void waitForGreen();
@@ -44,8 +46,8 @@ class TrafficLight : public TrafficObject {
   // update to the member MessageQueue with a random cycle of 4-6 seconds.
   void cycleThroughPhases();
 
-  // gets random interval (in seconds) for light switching
-  int getRandomInterval(int min = 4, int max = 6) const;
+  // gets random interval (in milliseconds) for light switching
+  static int getRandomInterval();
   // the queue handling the messages of lightPhase changes
   MessageQueue<TrafficLightPhase> _queue;
   // variable used for locking while queue is handling lightPhase changes
@@ -53,6 +55,10 @@ class TrafficLight : public TrafficObject {
   std::condition_variable _condition;
   std::mutex _mutex;
   TrafficLightPhase _currentPhase;
+  // static members for random light_switching interval generation:
+  static std::random_device rdev;
+  static std::mt19937 reng;
+  static std::uniform_int_distribution<> distrib;
 };
 
 #endif

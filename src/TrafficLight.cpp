@@ -18,7 +18,7 @@ T MessageQueue<T>::receive()
   _cond.wait(uLock, [this] { return !_messages.empty(); });
   // remove first element from queue
   T msg = std::move(_messages.front());
-  _messages.pop_front();
+  _messages.clear();
 
   return msg;
 }
@@ -39,8 +39,18 @@ void MessageQueue<T>::send(T&& msg)
 
 /* Implementation of class "TrafficLight" */
 
+// initialization of static random device
+std::random_device TrafficLight::rdev;
+
+// initialization of static random engine generator
+std::mt19937 TrafficLight::reng { TrafficLight::rdev() };
+
+// initialization of static uniform int distribution
+std::uniform_int_distribution<> TrafficLight::distrib(4000, 6000);
+
 TrafficLight::TrafficLight()
     : _currentPhase(TrafficLightPhase::red)
+
 {
 }
 
@@ -52,12 +62,7 @@ void TrafficLight::waitForGreen()
 }
 
 // return the current phase of traffic light
-TrafficLightPhase TrafficLight::getCurrentPhase()
-{
-  // protect _currentPhase while reading its state
-  std::lock_guard<std::mutex> lightLock(_mutex);
-  return _currentPhase;
-}
+TrafficLightPhase TrafficLight::getCurrentPhase() { return _currentPhase; }
 
 // runs a thread continuously changing the traffic lights phase
 void TrafficLight::simulate()
@@ -71,27 +76,26 @@ void TrafficLight::cycleThroughPhases()
 {
   // initialize stop watch
   auto lastUpdate = std::chrono::system_clock::now();
-
+  // interval of changing light phase (random 4-6 seconds)
+  int switchInterval = getRandomInterval();
+  long timeSinceLastUpdate {};
   while (true) {
     // sleep at every iteration to reduce CPU usage
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
     // calculate time difference
-    long timeSinceLastUpdate = std::chrono::duration_cast<std::chrono::seconds>(
+    timeSinceLastUpdate = std::chrono::duration_cast<std::chrono::milliseconds>(
         std::chrono::system_clock::now() - lastUpdate)
-                                   .count();
+                              .count();
 
-    // compare the cycle time with a random interval of 4-6 s
-    if (timeSinceLastUpdate >= getRandomInterval(4, 6)) {
+    // compare the cycle time with a random interval of 4-6 s (in milliseconds)
+    if (timeSinceLastUpdate >= switchInterval) {
       TrafficLightPhase newPhase = getCurrentPhase() == TrafficLightPhase::green
           ? TrafficLightPhase::red
           : TrafficLightPhase::green;
 
-      // lock  for modification of _currentPhase
-      {
-        std::lock_guard<std::mutex> lightLock(_mutex);
-        _currentPhase = newPhase;
-      }
+      // update current phase of the traffic light
+      _currentPhase = newPhase;
 
       // send lightPhase modification message to the queue
       _queue.send(std::move(newPhase));
@@ -102,12 +106,5 @@ void TrafficLight::cycleThroughPhases()
   }
 }
 
-// gets random interval for light switching
-int TrafficLight::getRandomInterval(int min, int max) const
-{
-  std::random_device rdev;
-  std::default_random_engine reng { rdev() };
-  std::uniform_int_distribution<> distrib(min, max);
-
-  return distrib(reng);
-}
+// static function returning random interval for light switching
+int TrafficLight::getRandomInterval() { return distrib(reng); }
