@@ -7,30 +7,36 @@
 class Street;
 class Intersection;
 
-class Vehicle : public TrafficObject, public std::enable_shared_from_this<Vehicle>
-{
-public:
-    // constructor / desctructor
-    Vehicle();
+class Vehicle : public TrafficObject,
+                public std::enable_shared_from_this<Vehicle> {
+  public:
+  Vehicle(); // constructor
 
-    // getters / setters
-    void setCurrentStreet(std::shared_ptr<Street> street) { _currStreet = street; };
-    void setCurrentDestination(std::shared_ptr<Intersection> destination);
+  void setCurrentStreet(std::shared_ptr<Street> street)
+  {
+    _currStreet = street;
+  };
 
-    // typical behaviour methods
-    void simulate();
+  // sets current destination and resets position on the new street
+  void setCurrentDestination(std::shared_ptr<Intersection> destination);
 
-    // miscellaneous
-    std::shared_ptr<Vehicle> get_shared_this() { return shared_from_this(); }
+  // runs a new thread with function simulating the vehicle driving
+  void simulate();
 
-private:
-    // typical behaviour methods
-    void drive();
+  std::shared_ptr<Vehicle> get_shared_this() { return shared_from_this(); }
 
-    std::shared_ptr<Street> _currStreet;            // street on which the vehicle is currently on
-    std::shared_ptr<Intersection> _currDestination; // destination to which the vehicle is currently driving
-    double _posStreet;                              // position on current street
-    double _speed;                                  // ego speed in m/s
+  private:
+  // typical behaviour methods
+  void drive();
+
+  // street on which the vehicle is currently on
+  std::shared_ptr<Street> _currStreet;
+  // destination to which the vehicle is currently driving
+  std::shared_ptr<Intersection> _currDestination;
+  // position on current street
+  double _posStreet;
+  // ego speed in m/s
+  double _speed;
 };
 
 #endif

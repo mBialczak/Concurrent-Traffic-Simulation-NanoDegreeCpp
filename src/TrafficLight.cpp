@@ -9,15 +9,10 @@
 template <typename T>
 T MessageQueue<T>::receive()
 {
-  // FP.5a : The method receive should use std::unique_lock<std::mutex> and
-  // _condition.wait()
-  // to wait for and receive new messages and pull them from the queue using
-  // move semantics.
-  // The received object should then be returned by the receive function.
-
   // lock the queue for the modification
   std::unique_lock<std::mutex> uLock(_mutex);
-  // pass unique lock to condition variable
+  //_cond.wait() holds execution until new message can be retrieved from the
+  // queue
   // lambda protects against spurious notifies and  ensures proceeding only when
   // queue is non-empty
   _cond.wait(uLock, [this] { return !_messages.empty(); });
@@ -33,10 +28,6 @@ T MessageQueue<T>::receive()
 template <typename T>
 void MessageQueue<T>::send(T&& msg)
 {
-  // FP.4a : The method send should use the mechanisms
-  // std::lock_guard<std::mutex> as well as _condition.notify_one() to add a new
-  // message to the queue and  afterwards send a notification.
-
   // lock the queue for the modification
   std::lock_guard<std::mutex> lock(_mutex);
   // add the message to the end of the queue
@@ -53,45 +44,31 @@ TrafficLight::TrafficLight()
 {
 }
 
+// holds execution of when called until green light is set
 void TrafficLight::waitForGreen()
 {
-  // FP.5b : add the implementation of the method waitForGreen, in which an
-  // infinite while-loop runs and repeatedly calls the receive function on the
-  // message queue. Once it receives TrafficLightPhase::green, the method
-  // returns.
   while (_queue.receive() != TrafficLightPhase::green) { }
   return;
 }
 
-// TODO: verify if current phase should be locked of picked from the message
-// queue
-// REVIEW: think if locking is needed
+// return the current phase of traffic light
 TrafficLightPhase TrafficLight::getCurrentPhase()
 {
-  // lock  _currentPhase for reading
+  // protect _currentPhase while reading its state
   std::lock_guard<std::mutex> lightLock(_mutex);
   return _currentPhase;
 }
 
+// runs a thread continuously changing the traffic lights phase
 void TrafficLight::simulate()
 {
-  // FP.2b : Finally, the private method „cycleThroughPhases“ should be started
-  // in a thread when the public method „simulate“ is called. To do this, use
-  // the thread queue in the base class.
   threads.emplace_back(std::thread(&TrafficLight::cycleThroughPhases, this));
 }
 
-// REVIEW: virtual?
-// virtual function which is executed in a thread
+// in an infinite loop changes the _currentPhase of traffic light and sends
+// update to the member MessageQueue with a random cycle of 4-6 seconds.
 void TrafficLight::cycleThroughPhases()
 {
-  // FP.2a : Implement the function with an infinite loop that measures the time
-  // between two loop cycles and toggles the current phase of the traffic light
-  // between red and green and sends an update method to the message queue using
-  // move semantics. The cycle duration should be a random value between 4 and 6
-  // seconds. Also, the while-loop should use std::this_thread::sleep_for to
-  // wait 1ms between two cycles.
-
   // initialize stop watch
   auto lastUpdate = std::chrono::system_clock::now();
 
@@ -104,21 +81,19 @@ void TrafficLight::cycleThroughPhases()
         std::chrono::system_clock::now() - lastUpdate)
                                    .count();
 
-    if (timeSinceLastUpdate >= getRandomInterval()) {
-
+    // compare the cycle time with a random interval of 4-6 s
+    if (timeSinceLastUpdate >= getRandomInterval(4, 6)) {
       TrafficLightPhase newPhase = getCurrentPhase() == TrafficLightPhase::green
           ? TrafficLightPhase::red
           : TrafficLightPhase::green;
 
-      // TODO: Verify if switch should be here or elsewhere
-      // REVIEW: think if locking is needed
       // lock  for modification of _currentPhase
       {
         std::lock_guard<std::mutex> lightLock(_mutex);
         _currentPhase = newPhase;
       }
 
-      // send lightphase modification message to the queue
+      // send lightPhase modification message to the queue
       _queue.send(std::move(newPhase));
 
       // reset stopwatch

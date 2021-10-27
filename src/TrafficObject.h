@@ -1,43 +1,47 @@
 #ifndef TRAFFICOBJECT_H
 #define TRAFFICOBJECT_H
 
-#include <vector>
-#include <thread>
 #include <mutex>
+#include <thread>
+#include <vector>
 
-enum ObjectType
-{
-    noObject,
-    objectVehicle,
-    objectIntersection,
-    objectStreet,
+enum ObjectType {
+  noObject,
+  objectVehicle,
+  objectIntersection,
+  objectStreet,
 };
 
-class TrafficObject
-{
-public:
-    // constructor / desctructor
-    TrafficObject();
-    ~TrafficObject();
+class TrafficObject {
+  public:
+  // constructor / desctructor
+  TrafficObject();
+  ~TrafficObject();
 
-    // getter and setter
-    int getID() { return _id; }
-    void setPosition(double x, double y);
-    void getPosition(double &x, double &y);
-    ObjectType getType() { return _type; }
+  // getter and setter
+  int getID() { return _id; }
+  void setPosition(double x, double y);
+  void getPosition(double& x, double& y);
+  ObjectType getType() { return _type; }
 
-    // typical behaviour methods
-    virtual void simulate(){};
+  // typical behaviour methods
+  virtual void simulate() {};
 
-protected:
-    ObjectType _type;                 // identifies the class type
-    int _id;                          // every traffic object has its own unique id
-    double _posX, _posY;              // vehicle position in pixels
-    std::vector<std::thread> threads; // holds all threads that have been launched within this object
-    static std::mutex _mtx;           // mutex shared by all traffic objects for protecting cout 
+  protected:
+  // identifies the class type
+  ObjectType _type;
+  // every traffic object has its own unique id
+  int _id;
+  // traffic object position in pixels
+  double _posX, _posY;
+  // holds all threads that have been launched within this object
+  std::vector<std::thread> threads;
+  // mutex shared by all traffic objects for protecting cout
+  static std::mutex _mtx;
 
-private:
-    static int _idCnt; // global variable for counting object ids
+  private:
+  // static variable for counting object ids
+  static int _idCnt;
 };
 
 #endif
