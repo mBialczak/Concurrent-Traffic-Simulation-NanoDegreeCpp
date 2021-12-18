@@ -1,12 +1,14 @@
-# Concurrent Traffic Simulation
+# Concurrent Traffic Simulation  - a module examination assignment for the NanoDegree C++ program
 
-<img src="data/traffic_simulation.gif"/>
+![screenshot](./data/traffic_simulation.gif)
 
 This is final project for the fourth course in the [Udacity C++ Nanodegree Program](https://www.udacity.com/course/c-plus-plus-nanodegree--nd213): Concurrency.
 
 The project is a multithreaded traffic simulator using real urban map. Each vehicle runs on a separate thread. Each intersection is run on a seperate thread as well, which manages traffic flow and enables collision avoidance.
 
 During the project development, a thread-safe communication protocol between vehicles and intersections has been established. Usage of multitude concurrent programming concepts has been trained (such as tasks, promises, futures, mutexes, locks and message queues).
+
+## Disclaimer
 
 As the course was focused on concurrency, some starter code had been provided before as a student I was envolved in the development. That includes mainly the graphical layer of the project, and overal structure of the program (such as base classes).
 
